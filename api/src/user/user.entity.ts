@@ -5,10 +5,14 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   email: string;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   username: string;
 
   @Column()
@@ -19,9 +23,9 @@ export class UserEntity {
     this.password = await hash(this.password, 12);
   }
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   bio?: string;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   image?: string;
 }
