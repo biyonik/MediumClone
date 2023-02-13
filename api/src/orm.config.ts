@@ -1,7 +1,8 @@
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { TagEntity } from './tag/tag.entity';
+import { UserEntity } from './user/user.entity';
 
-const entitiesList = [TagEntity];
+const entitiesList = [TagEntity, UserEntity];
 
 const config: PostgresConnectionOptions = {
   type: 'postgres',
@@ -13,7 +14,7 @@ const config: PostgresConnectionOptions = {
   entities: entitiesList,
   migrations: ['src/migrations/**/*{.js,.ts}'],
   subscribers: ['src/subscribers/**/*{.js,.ts}'],
-  synchronize: false,
+  synchronize: true,
 };
 
 export default config;
