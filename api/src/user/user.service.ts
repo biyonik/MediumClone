@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
@@ -17,6 +17,15 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<RegisterResponse> {
+    const emailIsExists = await this.emailIsExists(createUserDto.email);
+    const usernameIsExists = await this.usernameIsExists(
+      createUserDto.username,
+    );
+
+      if (usernameIsExists || emailIsExists) {
+        throw new HttpException('E-Posta adresi veya kullanıcı adı zaten kullanılıyor!', HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+
     const newUser =
       this.dtoHelperService.createUserDtoToUserEntity(createUserDto);
     const user = await this.userRepository.save(newUser);
@@ -30,7 +39,7 @@ export class UserService {
         username: user.username,
         email: user.email,
       },
-      JWT_SECRET_KEY
+      JWT_SECRET_KEY,
     );
   }
 
@@ -42,5 +51,19 @@ export class UserService {
       image: user.image,
       token: this.generateJwt(user),
     } as unknown as RegisterResponse;
+  }
+
+  private async usernameIsExists(username: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { username },
+    });
+    return !!user;
+  }
+
+  private async emailIsExists(email: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    return !!user;
   }
 }
