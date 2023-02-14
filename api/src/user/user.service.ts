@@ -49,7 +49,7 @@ export class UserService {
 
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: ['id', 'username', 'email', 'password']
+      select: ['id', 'username', 'email', 'password'],
     });
 
     const isPasswordCorrect = await compare(loginDto.password, user.password);
@@ -89,6 +89,12 @@ export class UserService {
       image: user.image,
       token: this.generateJwt(user),
     } as unknown as RegisterResponse;
+  }
+
+  async findById(id: string): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
   }
 
   private async usernameIsExists(username: string): Promise<boolean> {
