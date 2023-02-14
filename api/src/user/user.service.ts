@@ -7,6 +7,9 @@ import { DtoHelperService } from './dto-helper.service';
 import { RegisterResponse } from './models/register.response';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '@app/config';
+import { LoginDto } from './dtos/login.dto';
+import { LoginResponse } from './models/login.response';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -22,14 +25,49 @@ export class UserService {
       createUserDto.username,
     );
 
-      if (usernameIsExists || emailIsExists) {
-        throw new HttpException('E-Posta adresi veya kullanıcı adı zaten kullanılıyor!', HttpStatus.UNPROCESSABLE_ENTITY);
-      }
+    if (usernameIsExists || emailIsExists) {
+      throw new HttpException(
+        'E-Posta adresi veya kullanıcı adı zaten kullanılıyor!',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
 
     const newUser =
       this.dtoHelperService.createUserDtoToUserEntity(createUserDto);
     const user = await this.userRepository.save(newUser);
     return this.buildUserResponse(user);
+  }
+
+  async login(loginDto: LoginDto): Promise<LoginResponse> {
+    const emailIsExists = await this.emailIsExists(loginDto.email);
+    if (emailIsExists === false) {
+      throw new HttpException(
+        'E-Posta adresine bağlı kullanıcı bulunamadı!',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { email: loginDto.email },
+      select: ['id', 'username', 'email', 'password']
+    });
+
+    const isPasswordCorrect = await compare(loginDto.password, user.password);
+
+    if (!isPasswordCorrect) {
+      throw new HttpException(
+        'Kimlik bilgileri uyuşmadı! Lütfen doğru bilgiler ile giriş yapmayı deneyiniz',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const token = await this.generateJwt(user);
+
+    const loginResponse: LoginResponse = {
+      id: user.id,
+      access_token: token,
+    };
+    return loginResponse;
   }
 
   generateJwt(user: UserEntity): string {
