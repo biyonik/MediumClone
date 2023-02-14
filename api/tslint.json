@@ -1,5 +1,5 @@
 {
-    "rules" : { 
-        "no-empty-interface": false 
+    "rules": {
+        "no-empty-interface": false
     }
 }

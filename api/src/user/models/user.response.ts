@@ -1,6 +1,5 @@
-import { UserEntity } from './../user.entity';
+import { UserEntity } from './../user.entity'
 
-type UserResponseType = Omit<UserEntity, 'password'>;
+type UserResponseType = Omit<UserEntity, 'password'>
 
-export interface UserResponse extends UserResponseType {
-}
+export interface UserResponse extends UserResponseType {}
