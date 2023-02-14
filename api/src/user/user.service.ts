@@ -10,6 +10,8 @@ import { JWT_SECRET_KEY } from '@app/config'
 import { LoginDto } from './dtos/login.dto'
 import { LoginResponse } from './models/login.response'
 import { compare } from 'bcrypt'
+import { UpdateUserDto } from '@app/user/dtos/update-user.dto'
+import { UserResponse } from '@app/user/models/user.response'
 
 @Injectable()
 export class UserService {
@@ -71,6 +73,20 @@ export class UserService {
             access_token: token,
         }
         return loginResponse
+    }
+
+    async update(
+        id: string,
+        updateUserDto: UpdateUserDto
+    ): Promise<UserResponse> {
+        const user = await this.findById(id)
+        Object.assign(user, updateUserDto)
+        const result = await this.userRepository.update(id, user)
+        if (result.affected === 1) return user
+        throw new HttpException(
+            'Güncelleme işlemi başarısız!',
+            HttpStatus.UNPROCESSABLE_ENTITY
+        )
     }
 
     generateJwt(user: UserEntity): string {
