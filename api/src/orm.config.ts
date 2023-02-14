@@ -1,8 +1,9 @@
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions'
 import { TagEntity } from './tag/tag.entity'
 import { UserEntity } from './user/user.entity'
+import { ArticleEntity } from '@app/article/article.entity'
 
-const entitiesList = [TagEntity, UserEntity]
+const entitiesList = [TagEntity, UserEntity, ArticleEntity]
 
 const config: PostgresConnectionOptions = {
     type: 'postgres',
