@@ -1,14 +1,12 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dtos/create-user.dto'
 import { RegisterResponse } from './models/register.response'
 import { LoginDto } from './dtos/login.dto'
 import { LoginResponse } from './models/login.response'
-import { Req } from '@nestjs/common/decorators'
 import { UserResponse } from './models/user.response'
-import { ExpressRequestInterface } from './../types/express-request.interface'
 import { User } from '@app/user/decorators/user.decorator'
-import { UserEntity } from '@app/user/user.entity'
+import { AuthGuard } from '@app/guards/auth.guard'
 
 @Controller('users')
 export class UserController {
@@ -27,6 +25,7 @@ export class UserController {
     }
 
     @Get()
+    @UseGuards(AuthGuard)
     async getCurrentUser(@User() user: UserResponse): Promise<UserResponse> {
         return user
     }
