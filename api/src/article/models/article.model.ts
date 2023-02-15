@@ -1,3 +1,4 @@
+import { UserEntity } from './../../user/user.entity'
 export interface ArticleModel {
     id: string
     slug: string
@@ -8,4 +9,5 @@ export interface ArticleModel {
     updatedAt?: Date
     tagList: string[]
     favoritesCount: number
+    author: UserEntity
 }

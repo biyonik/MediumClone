@@ -1,12 +1,13 @@
-import { BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
-
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { UserEntity } from './../user/user.entity';
+import slugify from 'slugify';
 @Entity({ name: 'articles' })
 export class ArticleEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string
 
-    @Column()
-    slug: string
+    @Column({nullable: true})
+    slug?: string
 
     @Column()
     title: string
@@ -37,4 +38,7 @@ export class ArticleEntity {
     updateTimeStamp() {
         this.updatedAt = new Date()
     }
+
+    @ManyToOne(() => UserEntity, (user) => user.articles)
+    author: UserEntity
 }

@@ -1,5 +1,6 @@
-import {BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn} from 'typeorm'
+import {BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn} from 'typeorm'
 import { hash } from 'bcrypt'
+import { ArticleEntity } from './../article/article.entity';
 @Entity({ name: 'users' })
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
@@ -33,4 +34,7 @@ export class UserEntity {
 
     @Column({ default: '', nullable: true })
     image?: string
+
+    @OneToMany(() => ArticleEntity, (article) => article.author)
+    articles: ArticleEntity[]
 }
