@@ -7,6 +7,7 @@ import { UseGuards } from '@nestjs/common/decorators'
 import { AuthGuard, NoAuth } from './../guards/auth.guard';
 import { User } from '@app/user/decorators/user.decorator'
 import { UserEntity } from './../user/user.entity';
+import { DeleteResult } from 'typeorm';
 
 @Controller('articles')
 export class ArticleController {
@@ -30,10 +31,10 @@ export class ArticleController {
         return await this.articleService.update(id, updateArticleDto)
     }
 
-    @Delete()
+    @Delete(':slug')
     @UseGuards(AuthGuard)
-    async remove(): Promise<boolean> {
-        return false
+    async remove(@Param('slug') slug:string, @User('id') currentUserId: string): Promise<DeleteResult> {
+        return await this.articleService.remove(slug, currentUserId)
     }
 
     @Get()
