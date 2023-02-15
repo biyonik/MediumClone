@@ -9,6 +9,7 @@ import { UserService } from './../user.service'
 export class AuthMiddleware implements NestMiddleware {
     constructor(private readonly userService: UserService) {}
     async use(req: ExpressRequestInterface, _: Response, next: NextFunction) {
+
         if (!req.headers.authorization) {
             req.user = null
             next()

@@ -37,7 +37,14 @@ export class ArticleService {
         return await this.articleRepository.find() as ArticleModel[]
     }
 
-    async get
+    async getBySlug(slug:string): Promise<ArticleModel> {
+        const article: ArticleEntity =  await this.articleRepository.findOne({
+            where: {slug: slug},
+            relations: ['author']
+        });
+        const articleModel: ArticleModel = Object.assign({} as ArticleModel, article);
+        return articleModel;
+    }
 
     private generateSlug(text: string): string {
         const randomString = (Math.random() * Math.pow(36,6) | 0).toString(36)

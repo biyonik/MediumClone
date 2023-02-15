@@ -7,16 +7,17 @@ import ormConfig from '@app/orm.config'
 import { UserModule } from './user/user.module'
 import { AuthMiddleware } from './user/middlewares/auth.middleware'
 import { ArticleModule } from '@app/article/article.module'
+import { ExecutionContext } from '@nestjs/common'
 
 @Module({
     imports: [
         TagModule,
         UserModule,
         ArticleModule,
-        TypeOrmModule.forRoot(ormConfig),
+        TypeOrmModule.forRoot(ormConfig)
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService]
 })
 export class AppModule {
     configure(consumer: MiddlewareConsumer) {
@@ -30,6 +31,14 @@ export class AppModule {
                 {
                     path: 'users/login',
                     method: RequestMethod.POST,
+                },
+                {
+                    path: 'articles/:slug',
+                    method: RequestMethod.GET
+                },
+                {
+                    path: 'articles',
+                    method: RequestMethod.GET
                 }
             )
             .forRoutes({

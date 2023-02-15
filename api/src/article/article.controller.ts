@@ -4,7 +4,7 @@ import { ArticleModel } from '@app/article/models/article.model'
 import { CreateArticleDto } from '@app/article/dto/create-article.dto'
 import { UpdateArticleDto } from '@app/article/dto/update-article.dto'
 import { UseGuards } from '@nestjs/common/decorators'
-import { AuthGuard } from './../guards/auth.guard';
+import { AuthGuard, NoAuth } from './../guards/auth.guard';
 import { User } from '@app/user/decorators/user.decorator'
 import { UserEntity } from './../user/user.entity';
 
@@ -41,8 +41,9 @@ export class ArticleController {
         return await this.articleService.getAll()
     }
 
-    @Get(':id')
-    async findById(@Param('id') id: string): Promise<ArticleModel> {
-        return {} as ArticleModel
+    @Get(':slug')
+    @NoAuth()
+    async findById(@Param('slug') slug: string): Promise<ArticleModel> {
+        return await this.articleService.getBySlug(slug);
     }
 }
