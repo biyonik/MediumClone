@@ -25,12 +25,18 @@ export class ArticleService {
     }
 
     async update(
-        id: string,
+        currentUserId: string,
+        slug: string,
         updateArticleDto: UpdateArticleDto
     ): Promise<ArticleModel> {
-        const articleModel = Object.assign({} as ArticleModel, updateArticleDto)
-        await this.articleRepository.save(articleModel)
-        return articleModel
+        const entity = await this.isExists(slug)
+        if (!entity) throw new HttpException('Article not found! Operation failed.', HttpStatus.NOT_FOUND)
+
+        if (entity.author.id !== currentUserId) throw new HttpException('You are not an author', HttpStatus.FORBIDDEN)
+        entity.slug = this.generateSlug(updateArticleDto.title ? updateArticleDto.title : entity.title)
+        Object.assign(entity, updateArticleDto);
+        const updatedEntity = await this.articleRepository.save(entity)
+        return updatedEntity as ArticleModel;
     }
 
     async remove(slug: string, currentUserId: string): Promise<DeleteResult> {

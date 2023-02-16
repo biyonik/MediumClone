@@ -22,13 +22,14 @@ export class ArticleController {
         return await this.articleService.create(currentUser, createArticleDto);
     }
 
-    @Put()
+    @Put(':slug')
     @UseGuards(AuthGuard)
     async update(
-        @Param('id') id: string,
+        @User('id') currentUserId: string,
+        @Param('slug') slug: string,
         @Body() updateArticleDto: UpdateArticleDto
     ): Promise<ArticleModel> {
-        return await this.articleService.update(id, updateArticleDto)
+        return await this.articleService.update(currentUserId, slug, updateArticleDto)
     }
 
     @Delete(':slug')
