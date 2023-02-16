@@ -3,11 +3,12 @@ import { ArticleService } from '@app/article/article.service'
 import { ArticleModel } from '@app/article/models/article.model'
 import { CreateArticleDto } from '@app/article/dto/create-article.dto'
 import { UpdateArticleDto } from '@app/article/dto/update-article.dto'
-import { UseGuards } from '@nestjs/common/decorators'
-import { AuthGuard, NoAuth } from './../guards/auth.guard';
+import { Query, UseGuards } from '@nestjs/common/decorators'
+import { AuthGuard, NoAuth } from './../guards/auth.guard'
 import { User } from '@app/user/decorators/user.decorator'
-import { UserEntity } from './../user/user.entity';
+import { UserEntity } from './../user/user.entity'
 import { DeleteResult } from 'typeorm';
+import { ArticleResponseInterface } from './response/ArticlesResponseInterface'
 
 @Controller('articles')
 export class ArticleController {
@@ -39,8 +40,8 @@ export class ArticleController {
     }
 
     @Get()
-    async findAll(): Promise<ArticleModel[]> {
-        return await this.articleService.getAll()
+    async findAll(@Query() query: any): Promise<ArticleResponseInterface> {
+        return await this.articleService.getAll(query)
     }
 
     @Get(':slug')
