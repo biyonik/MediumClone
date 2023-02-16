@@ -64,17 +64,30 @@ export class ArticleService {
             })
         }
 
-        if (query.author) {
+        if (query.author || query.favorited) {
             const author = await this.userRepository.findOne({
                 where: {
                     username: query.author
-                }
+                },
+                relations: ['favorites']
             })
+
             if (!author) return {articles: [], articlesCount: 0}
-            queryBuilder.andWhere('articles.authorId = :id', {
-                id: author.id
-            })
+
+            if (query.author) {
+                queryBuilder.andWhere('articles.authorId = :id', {
+                    id: author.id
+                })
+            }
+
+            if (query.favorited) {
+                const ids = author.favorites.map(el => el.id)
+                if (ids.length > 0) {
+                    queryBuilder.andWhere('articles.id IN (:...ids)', {ids})
+                }
+            }
         }
+
 
         queryBuilder.orderBy('articles.createdAt', 'DESC')
 
@@ -102,6 +115,55 @@ export class ArticleService {
         const articleModel: ArticleModel = Object.assign({} as ArticleModel, article);
         return articleModel;
     }
+
+    async getBySlugAsArticleEntity(slug:string): Promise<ArticleEntity> {
+        const article: ArticleEntity =  await this.articleRepository.findOne({
+            where: {slug: slug},
+            relations: ['author']
+        });
+        return article
+    }
+
+    async addArticleToFavorites(slug: string, currentUserId: string): Promise<ArticleEntity> {
+        const article = await this.getBySlugAsArticleEntity(slug)
+        const user = await this.userRepository.findOne({
+            where: {id: currentUserId},
+            relations: ['favorites']
+        })
+
+        if (!article || !user) throw new HttpException('Article or user not found!', HttpStatus.NOT_FOUND)
+
+        const isNotFavorited = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id) === -1
+
+        if (isNotFavorited) {
+            user.favorites.push(article)
+            article.favoritesCount += 1
+            await this.userRepository.save(user)
+            await this.articleRepository.save(article)
+        }
+
+        return article as ArticleEntity
+    }
+
+    async removeArticleFromFavorites(slug: string, currentUserId: string): Promise<void> {
+        const article = await this.getBySlugAsArticleEntity(slug)
+        const user = await this.userRepository.findOne({
+            where: {id: currentUserId},
+            relations: ['favorites']
+        })
+
+        if (!article || !user) throw new HttpException('Article or user not found!', HttpStatus.NOT_FOUND)
+
+        const articleIndex = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id)
+
+        if (articleIndex >= 0) {
+            user.favorites.splice(articleIndex, 1)
+            article.favoritesCount -= 1
+            await this.userRepository.save(user)
+            await this.articleRepository.save(article)
+        }
+    }
+
 
     private async isExists(slug: string): Promise<ArticleEntity> {
         const article =  await this.articleRepository.findOne({
