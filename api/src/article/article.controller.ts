@@ -59,7 +59,7 @@ export class ArticleController {
     }
 
     @Get()
-    async findAll(@Query() query: any): Promise<ArticleResponseInterface> {
+    async findAll(@User('id') currentUserId?: string, @Query() query?: any): Promise<ArticleResponseInterface> {
         return await this.articleService.getAll(query)
     }
 

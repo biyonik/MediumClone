@@ -1,6 +1,4 @@
-import { ArticleEntity } from "../article.entity";
-
 export interface ArticleResponseInterface {
-    articles: ArticleEntity[],
+    articles: any[]
     articlesCount: number
 }
